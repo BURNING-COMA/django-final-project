@@ -14,7 +14,8 @@
         <p>total votes:{{project.total_votes}} </p>
         <p>total upvotes: {{project.total_upvotes}} </p>
         <p>total downvotes: {{total_downvotes}} </p> <!-- i send this seprately in context to avoid subtr in template issues-->
-        <!-- TODO add current user feedback -->
+        <!-- current user feedback -->
+        <p> {{cur_user_rate_msg}} </p>
         <!-- TODO add rating form  -->
     </div>
     <div>
