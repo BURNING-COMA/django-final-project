@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>donate and rate projects</title>
+</head>
+<body>
+    <!-- user id : {{user_id}}, 
+    project id : {{project_id}} -->
+
+    <h1> project id: {{project.id}} </h1>
+    <div>
+        <h2> Rating Project </h2>
+        <p>total votes:{{project.total_votes}} </p>
+        <p>total upvotes: {{project.total_upvotes}} </p>
+        <p>total downvotes: {{total_downvotes}} </p> <!-- i send this seprately in context to avoid subtr in template issues-->
+        <!-- TODO add current user feedback -->
+        <!-- TODO add rating form  -->
+    </div>
+    <div>
+        <h2> Donations (in EGP )</h2>
+        <p> target: {{project.total_target}} </p>
+        <p> collected: {{project.collected_donations}} </p>
+        <p> remaining: {{remaining_sum}} </p>
+        <p> min donation: 1</p>
+        <p> max donation: {{remaining_sum}}  </p>
+
+        <!-- TODO add donation form only if not pass end_date -->
+    </div>
+</body>
+</html>
