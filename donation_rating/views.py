@@ -20,6 +20,7 @@ def donate(request, project_id):
             project.collected_donations += donation 
             project.save()
             # return HttpResponse(f'{donation}')
+            # TODO send message donations made 
             return redirect(f'/do_ra/project/{project_id}')
     return HttpResponse('invalid')
 
@@ -65,7 +66,7 @@ def home(request, project_id):
     project = models.Projects.objects.get( id = project_id )
     # Workaround to avoid making custom tag/filter for subtraction in templates
     # instead i will make calc here and send it via context 
-    total_downvotes = project.total_votes - project.total_upvotes
+    # TODO total_downvotes = project.total_votes - project.total_upvotes
     remaining_sum = project.total_target - project.collected_donations
 
     #determine user feedback 
@@ -96,7 +97,7 @@ def home(request, project_id):
         is_donation_open = False 
 
     return render(request, 'donation_rating/home.html', {'project':project, 
-        'total_downvotes' : total_downvotes, 
+        # 'total_downvotes' : total_downvotes, 
         'remaining_sum' : remaining_sum, 
         'cur_user_rate_msg' : cur_user_rate_msg,
         'ratingForm' : ratingForm,
