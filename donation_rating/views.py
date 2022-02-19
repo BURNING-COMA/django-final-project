@@ -15,7 +15,7 @@ def donate(request, project_id):
         if donateForm.is_valid():
             donation = donateForm.cleaned_data["donate"]
             project = models.Projects.objects.get(id=project_id)
-            # It is NOT allowed to exceed project target
+            # It is NOT allowed that donations exceed project target
             donation = min(donation, project.total_target-project.collected_donations)
             project.collected_donations += donation 
             project.save()
@@ -35,7 +35,7 @@ def update_rating(request, project_id):
             # depending on current user voting and new voting, update 
             # project: total voting, total upvotes 
             # projectRating: is_vote, remove or add from table 
-            user_has_upvoted = models.ProjectRate.objects.filter( user = user_id).exists()
+            user_has_upvoted = models.ProjectRate.objects.filter( user = user_id, project=project_id).exists()
           
             if (not user_has_upvoted) and did_upvote=='upvote':
                 models.ProjectRate.objects.create(is_upvote=True, user=request.user, project=models.Projects.objects.get(id=project_id))
@@ -44,13 +44,15 @@ def update_rating(request, project_id):
                 cur_project.total_votes += 1
                 cur_project.save()
             elif user_has_upvoted and did_upvote=='no_upvote': 
-                models.ProjectRate.objects.filter(user=user_id).delete()
+                models.ProjectRate.objects.filter(user=user_id, project=project_id).delete()
                 cur_project = models.Projects.objects.get(id=project_id)
                 cur_project.total_upvotes -= 1
                 cur_project.total_votes -= 1
                 cur_project.save()
             return redirect(f'/do_ra/project/{project_id}')
     return HttpResponse('invalid')
+
+
 
 
 @login_required(login_url='login')
@@ -61,7 +63,8 @@ def home(request, project_id):
     #      {'user_id':user_id, 'project_id': project_id})
     
     project = models.Projects.objects.get( id = project_id )
-    # Workaround to avoid making custom tag/filter for subtraction 
+    # Workaround to avoid making custom tag/filter for subtraction in templates
+    # instead i will make calc here and send it via context 
     total_downvotes = project.total_votes - project.total_upvotes
     remaining_sum = project.total_target - project.collected_donations
 
@@ -71,9 +74,9 @@ def home(request, project_id):
     # does the record exist ?
 
     # determine current user rate for the project. did he make a rate ? what is it ?
-    user_has_rate = models.ProjectRate.objects.filter( user = user_id).exists()
+    user_has_rate = models.ProjectRate.objects.filter( user = user_id, project=project_id).exists()
     if user_has_rate: 
-        cur_user_rate =  models.ProjectRate.objects.get( user = user_id )
+        cur_user_rate =  models.ProjectRate.objects.get( user = user_id, project=project_id )
 
     # message that show user his current rate
     cur_user_rate_msg = 'You did not vote for this project'
@@ -83,7 +86,6 @@ def home(request, project_id):
         else: 
             # the feature of downvote will be added later.
             cur_user_rate_msg = 'You downvoted this project'
-
 
     ratingForm = forms.MakeRatingForm()
     donateForm = forms.DonationForm()

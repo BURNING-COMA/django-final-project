@@ -4,6 +4,8 @@ from django import forms
 
 from . import models 
 
+
+# TODO add downvote
 # RATING_OPTIONS = (
 #     ('1', 'Upvote'), 
 #     ('2', 'Downvote'),
