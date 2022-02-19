@@ -32,6 +32,20 @@
         <p> max donation: {{remaining_sum}}  </p>
 
         <!-- TODO add donation form only if not pass end_date -->
+        {% if is_donation_open  %}
+        <form action="{% url 'donate' project_id %}" method="post">
+            {% csrf_token %}
+            {{ donateForm }}
+            <input type="submit" value="Submit">
+        </form>
+        {% else %}
+
+        <p> no more donation on this project </p>
+        {% endif %}
+        
+
+        
+        
     </div>
 </body>
 </html>

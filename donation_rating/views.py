@@ -1,6 +1,5 @@
+from datetime import datetime
 from http.client import HTTPResponse
-from operator import mod
-from pyexpat import model
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 
@@ -8,6 +7,25 @@ from . import models
 from . import forms 
 # Create your views here.
 
+@login_required
+def donate(request, project_id):
+    user_id = request.user.id
+    if request.method == 'POST':
+        donateForm = forms.DonationForm(request.POST)
+        if donateForm.is_valid():
+            donation = donateForm.cleaned_data["donate"]
+            project = models.Projects.objects.get(id=project_id)
+            # It is NOT allowed to exceed project target
+            donation = min(donation, project.total_target-project.collected_donations)
+            project.collected_donations += donation 
+            project.save()
+            # return HttpResponse(f'{donation}')
+            return redirect(f'/do_ra/project/{project_id}')
+    return HttpResponse('invalid')
+
+
+
+@login_required
 def update_rating(request, project_id):
     user_id = request.user.id
     if request.method == 'POST':
@@ -61,6 +79,13 @@ def home(request, project_id):
 
 
     ratingForm = forms.MakeRatingForm()
+    donateForm = forms.DonationForm()
+
+    is_donation_open = True 
+    if project.collected_donations == project.total_target:
+        is_donation_open = False 
+    if project.end_date >= datetime.today().date():
+        is_donation_open = False 
 
     return render(request, 'donation_rating/home.html', {'project':project, 
         'total_downvotes' : total_downvotes, 
@@ -68,4 +93,6 @@ def home(request, project_id):
         'cur_user_rate_msg' : cur_user_rate_msg,
         'ratingForm' : ratingForm,
         'project_id' : project_id,
+        'donateForm' : donateForm,
+        'is_donation_open' : is_donation_open,
         })

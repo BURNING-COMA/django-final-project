@@ -9,5 +9,7 @@ urlpatterns =[
     # path('delete-project/<str:pk>', DeleteProject, name='delete-project'),
 
     path('project/<str:project_id>', views.home, name='proj_no'),
-    path('update_rating/<int:project_id>', views.update_rating, name='update_rating')
+    path('update_rating/<int:project_id>', views.update_rating, name='update_rating'),
+    path('donate/<int:project_id>', views.donate, name='donate'),
+
 ]
