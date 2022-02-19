@@ -31,16 +31,23 @@ def update_rating(request, project_id):
     if request.method == 'POST':
         ratingForm = forms.MakeRatingForm(request.POST)
         if ratingForm.is_valid():
-            did_upvote = ratingForm.cleaned_data["is_upvoted"]
+            did_upvote = ratingForm.cleaned_data["voting"]
             # depending on current user voting and new voting, update 
             # project: total voting, total upvotes 
             # projectRating: is_vote, remove or add from table 
             user_has_upvoted = models.ProjectRate.objects.filter( user = user_id).exists()
-            if not user_has_upvoted and did_upvote:
+          
+            if (not user_has_upvoted) and did_upvote=='upvote':
                 models.ProjectRate.objects.create(is_upvote=True, user=request.user, project=models.Projects.objects.get(id=project_id))
                 cur_project = models.Projects.objects.get(id=project_id)
                 cur_project.total_upvotes += 1
                 cur_project.total_votes += 1
+                cur_project.save()
+            elif user_has_upvoted and did_upvote=='no_upvote': 
+                models.ProjectRate.objects.filter(user=user_id).delete()
+                cur_project = models.Projects.objects.get(id=project_id)
+                cur_project.total_upvotes -= 1
+                cur_project.total_votes -= 1
                 cur_project.save()
             return redirect(f'/do_ra/project/{project_id}')
     return HttpResponse('invalid')
@@ -82,9 +89,8 @@ def home(request, project_id):
     donateForm = forms.DonationForm()
 
     is_donation_open = True 
-    if project.collected_donations == project.total_target:
-        is_donation_open = False 
-    if project.end_date >= datetime.today().date():
+    if  project.collected_donations == project.total_target or \
+        project.end_date < datetime.today().date():
         is_donation_open = False 
 
     return render(request, 'donation_rating/home.html', {'project':project, 

@@ -12,7 +12,9 @@ from . import models
 
 class MakeRatingForm( forms.Form ):
     # user_rating = forms.ChoiceField(widget = forms.Select(), choices=RATING_OPTIONS, required=True)
-    is_upvoted = forms.BooleanField()
+    CHOICES=[('upvote','Upvote'),
+         ('no_upvote','No Upvote')]
+    voting = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect)
 
 
 class DonationForm( forms.Form):
